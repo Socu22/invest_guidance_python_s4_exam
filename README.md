@@ -4,7 +4,12 @@
 py -3.14 -m venv .venv
 .venv\Scripts\activate        # Windows
 source .venv/bin/activate    # Linux/macOS 
-
+uv init 
+uv pip install -r requirements.txt
+uv pip install -e .
+inside pyproject.toml:
+    [tool.setuptools.packages.find]
+    where = ["src"]
 
 
 [Download requiremnts]:
