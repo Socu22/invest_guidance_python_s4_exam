@@ -1,14 +1,28 @@
 # invest_guidance_python_s4_exam
 
-
-
-Client
-cd client
-streamlit run app --server.port 8502  (streamlit run client/app --server.port 8502)
-
+[Setup .venv]:
+py -3.14 -m venv .venv
+.venv\Scripts\activate        # Windows
+source .venv/bin/activate    # Linux/macOS 
 
 
 
-Server
-cd server
-uvicorn name:app --reload --port 3000  ([NOT_SUPPORTED]uvicorn server.name:app --reload --port 3000)
+[Download requiremnts]:
+pip install requiremnts.txt
+
+
+Start: 
+    [Client]:
+    cd client
+    streamlit run app --server.port 8502  (streamlit run client/app --server.port 8502)
+    [Server]:
+    cd server
+    uvicorn name:app --reload --port 8080  ([NOT_SUPPORTED]uvicorn server.name:app --reload --port 8080)
+
+Dev: 
+    [debug]: 
+    ruff check -w  # live
+    ruff check --fix
+     pyright # live 
+    [test]:
+    pytest .
