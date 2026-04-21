@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
-from routes.items import router as items_router
+from server.routes.items import router as items_router
 # Load environment variables
 load_dotenv()
 
