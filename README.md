@@ -22,12 +22,12 @@ Start:
     streamlit run app --server.port 8502  (streamlit run client/app --server.port 8502)
     [Server]:
     cd server
-    uvicorn name:app --reload --port 8080  ([NOT_SUPPORTED]uvicorn server.name:app --reload --port 8080)
+    uvicorn app:app --reload --port 8080  ([NOT_SUPPORTED]uvicorn server.app:app --reload --port 8080)
 
 Dev: 
     [debug]: 
     ruff check -w  # live
     ruff check --fix
-     pyright # live 
+    pyright -w # live 
     [test]:
     pytest .

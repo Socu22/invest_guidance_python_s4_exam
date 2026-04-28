@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
-from server.routes.items import router as items_router
+from server.routers.itemsRouter import router as items_router
+from server.routers.stockDataRouter import router as stocks_Router
+
 # Load environment variables
 load_dotenv()
 
@@ -9,6 +11,8 @@ app = FastAPI()
 
 # Include the item routes
 app.include_router(items_router)
+app.include_router(stocks_Router)
+
 
 # Run the app (for development)
 if __name__ == "__main__":
