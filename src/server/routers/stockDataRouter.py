@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any
 from ..database.db import get_db_connection
 from dotenv import load_dotenv
 import os
-import requests
+import httpx
 import json
 
 # Load environment variables
@@ -24,7 +24,7 @@ class StockResponse(BaseModel):
     id: int
     ticker: str
     data: List[Dict[str, Any]]
-    message: str  # Added message field for success/error messages
+    message: str
 
 class StockCreate(BaseModel):
     ticker: str
@@ -42,13 +42,42 @@ router = APIRouter(prefix="/stocks", tags=["stocks"])
 # ENDPOINTS
 # ----------------------
 
-@router.get("/{ticker}", response_model=Stock)
-def get_stock(ticker: str):
-    """Fetch stock data for a given ticker from the database."""
-    db = get_db_connection()
-    cursor = db.cursor()
-
+@router.get("/", response_model=List[Stock])
+async def get_all_stocks():
+    """Fetch all stocks from the database."""
     try:
+        db = get_db_connection()
+        cursor = db.cursor()
+
+        # Fetch all stocks
+        cursor.execute('SELECT id, ticker, data FROM stocks;')
+        rows = cursor.fetchall()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No stocks found")
+
+        # Convert rows to list of Stock objects
+        stocks = []
+        for row in rows:
+            stock_data = json.loads(row[2])  # row[2] is the 'data' column
+            stocks.append({
+                "id": row[0],
+                "ticker": row[1],
+                "data": stock_data
+            })
+
+        return stocks
+
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"Error fetching stocks: {err}")
+
+@router.get("/{ticker}", response_model=Stock)
+async def get_stock(ticker: str):
+    """Fetch stock data for a given ticker from the database."""
+    try:
+        db = get_db_connection()
+        cursor = db.cursor()
+
         cursor.execute('SELECT data FROM stocks WHERE ticker = ?;', (ticker,))
         row = cursor.fetchone()
         if not row:
@@ -65,21 +94,23 @@ def get_stock(ticker: str):
         raise HTTPException(status_code=500, detail=f"Error fetching data: {err}")
 
 @router.post("/", response_model=StockResponse, status_code=201)
-def create_stock(stock: StockCreate):
+async def create_stock(stock: StockCreate):
     """Fetch stock data from EODHD API and create a new stock entry in the database."""
     ticker = stock.ticker
     url = f"https://eodhd.com/api/eod/{ticker}?api_token={api_token}&fmt=json"
 
     try:
-        # Fetch data from EODHD API
-        response = requests.get(url)
-        response.raise_for_status()
-        eod_data = response.json()
+        # Async HTTP request
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            eod_data = response.json()
 
         # Ensure eod_data is a list
         if not isinstance(eod_data, list):
             eod_data = [eod_data]
 
+        # Sync database operations
         db = get_db_connection()
         cursor = db.cursor()
 
@@ -110,25 +141,28 @@ def create_stock(stock: StockCreate):
             "message": f"Stock {ticker} created successfully."
         }
 
-    except requests.exceptions.RequestException as err:
+    except httpx.RequestError as err:
         raise HTTPException(status_code=500, detail=f"Failed to fetch EOD data: {err}")
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"Error creating stock: {err}")
 
 @router.put("/", response_model=StockResponse)
-def update_stock(stock: StockUpdate):
+async def update_stock(stock: StockUpdate):
     """Fetch stock data from EODHD API and update the existing stock entry in the database."""
     ticker = stock.ticker
     url = f"https://eodhd.com/api/eod/{ticker}?api_token={api_token}&fmt=json"
 
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        new_data = response.json()
+        # Async HTTP request
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            new_data = response.json()
 
         if not isinstance(new_data, list):
             new_data = [new_data]
 
+        # Sync database operations
         db = get_db_connection()
         cursor = db.cursor()
 
@@ -163,6 +197,7 @@ def update_stock(stock: StockUpdate):
 
         db.commit()
 
+        # Fetch the updated ID for the response
         cursor.execute("SELECT id FROM stocks WHERE ticker = ?;", (ticker,))
         row = cursor.fetchone()
         stock_id = row[0] if row else 1
@@ -180,8 +215,7 @@ def update_stock(stock: StockUpdate):
             "message": message
         }
 
-    except requests.exceptions.RequestException as err:
+    except httpx.RequestError as err:
         raise HTTPException(status_code=500, detail=f"Failed to fetch EOD data: {err}")
     except Exception as err:
-        db.rollback()
         raise HTTPException(status_code=500, detail=f"Error updating stock: {err}")

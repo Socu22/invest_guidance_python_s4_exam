@@ -21,6 +21,7 @@ httpx==0.28.1
 identify==2.6.19
 idna==3.11
 iniconfig==2.3.0
+-e git+https://github.com/Socu22/invest_guidance_python_s4_exam.git@4de15e2b1f897906052b2f3034ca29168d2724e1#egg=invest_guidance_python_s4_exam
 Jinja2==3.1.6
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1

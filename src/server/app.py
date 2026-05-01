@@ -9,6 +9,8 @@ load_dotenv()
 
 app = FastAPI()
 
+
+
 # Include the item routes
 app.include_router(items_router)
 app.include_router(stocks_Router)
