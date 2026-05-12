@@ -6,7 +6,7 @@ import numpy as np  # Tilføjet NumPy
 import httpx
 import asyncio
 from client.utills.data_analysis import analyze_stock_data, plot_stock_trends
-#from client.utills.llm_integration import get_investment_advice
+from client.utills.llm_integration import get_investment_advice
 
 # Load environment variables
 load_dotenv()
@@ -70,7 +70,7 @@ if analyze_btn and ticker:
 if advice_btn and "stock_data" in st.session_state:
     with st.spinner("Generating AI advice..."):
         try:
-            advice = 0  # get_investment_advice(ticker,st.session_state["stock_data"],st.session_state["analysis"]            )
+            advice = get_investment_advice(ticker,st.session_state["stock_data"],st.session_state["analysis"]            )
             st.subheader("🤖 AI Investment Advice")
             st.markdown(advice)
         except Exception as e:
