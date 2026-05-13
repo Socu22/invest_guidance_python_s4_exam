@@ -1,20 +1,18 @@
 # invest_guidance_python_s4_exam
 
 [Setup .venv]:
-py -3.14 -m venv .venv
+py -3.12 -m venv .venv
 .venv\Scripts\activate        # Windows
 source .venv/bin/activate    # Linux/macOS 
-uv init 
 python -m pip install --upgrade pip
-uv pip install -r requirements.txt
+uv init 
 uv pip install -e .
+pip install requiremnts.txt  - download requirements 
 inside pyproject.toml:
     [tool.setuptools.packages.find]
     where = ["src"]
 
 
-[Download requiremnts]:
-pip install requiremnts.txt
 
 
 Start: 
@@ -27,8 +25,8 @@ Start:
 
 Dev: 
     [debug]: 
-    ruff check -w  # live
+    ruff check -w  # live  
     ruff check --fix
-    pyright -w # live 
+    pyright -w # lipyve 
     [test]:
     pytest .

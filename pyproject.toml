@@ -1,1 +1,10 @@
-python -m pip index versions mistralai -i https://pypi.org/simple
+[project]
+name = "invest-guidance-python-s4-exam"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.10"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
