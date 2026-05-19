@@ -219,3 +219,5 @@ async def update_stock(stock: StockUpdate):
         raise HTTPException(status_code=500, detail=f"Failed to fetch EOD data: {err}")
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"Error updating stock: {err}")
+
+

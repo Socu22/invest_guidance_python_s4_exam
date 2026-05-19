@@ -1,6 +1,8 @@
 import sqlite3
 import sys
 import json
+import os
+from pathlib import Path
 
 # Global variable to hold the SQLite connection
 _db_connection = None
@@ -9,7 +11,10 @@ def get_db_connection() -> sqlite3.Connection:
     """Return a singleton SQLite connection."""
     global _db_connection
     if _db_connection is None:
-        _db_connection = sqlite3.connect('stockDataDatabase.db', check_same_thread=False)
+        # Get the absolute path to the database file
+        # This works whether running from src/ or project root
+        db_path = Path(__file__).parent.parent / "stockDataDatabase.db"
+        _db_connection = sqlite3.connect(str(db_path), check_same_thread=False)
         _db_connection.row_factory = sqlite3.Row  # For named columns
         _db_connection.execute("PRAGMA journal_mode=WAL;")  # For concurrency
         # Verify WAL mode is enabled
@@ -55,7 +60,7 @@ def initialize_stock_database(delete_mode=False):
                 "date": "2026-04-22",
                 "open": 252.44,
                 "high": 255.94,
-                "low": 250.33,  # Fixed typo
+                "low": 250.33,
                 "close": 255.36,
                 "adjusted_close": 255.36,
                 "volume": 36065100
@@ -64,7 +69,7 @@ def initialize_stock_database(delete_mode=False):
                 "date": "2026-04-23",
                 "open": 255.39,
                 "high": 258.79,
-                "low": 253.07,  # Fixed typo
+                "low": 253.07,
                 "close": 255.08,
                 "adjusted_close": 255.08,
                 "volume": 39091400
