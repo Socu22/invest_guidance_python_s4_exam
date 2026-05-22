@@ -1,0 +1,37 @@
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    ports:
+      - "8080:8080"
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - FASTAPI_URL=http://fastapi:8080
+      - PYTHONPATH=/app
+    volumes:
+      - ./src/server:/app/server
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - FASTAPI_URL=http://fastapi:8080
+      - PYTHONPATH=/app
+    depends_on:
+      - fastapi
+    volumes:
+      - ./src/client:/app/client
+    networks:
+      - app_network
+    restart: unless-stopped
+
+networks:
+  app_network:
+    driver: bridge

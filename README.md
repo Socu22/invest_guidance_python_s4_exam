@@ -12,7 +12,9 @@ inside pyproject.toml:
     [tool.setuptools.packages.find]
     where = ["src"]
 
-
+[Docker]
+    docker compose up --build
+    docker down
 
 
 Start: 

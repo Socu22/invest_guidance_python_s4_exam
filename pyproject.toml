@@ -1,10 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "invest-guidance-python-s4-exam"
 version = "0.1.0"
-description = "Add your description here"
+description = "Invest Guidance Application for Python S4 Exam"
 readme = "README.md"
-requires-python = ">=3.12.10"
-dependencies = []
+requires-python = ">=3.12"
+authors = [
+    {name = "Lucas Praeger Knudsen", email = "Lucas.p.knudsen@gmail.com"},
+]
+
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["server*", "client*"]  # Explicitly include your packages

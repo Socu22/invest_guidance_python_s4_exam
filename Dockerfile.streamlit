@@ -1,0 +1,32 @@
+# Use official Python 3.12 image
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /app/client
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for caching
+COPY requirements_copy.txt .
+
+# Install uv and upgrade pip
+RUN pip install --upgrade pip && \
+    pip install uv
+
+# Install dependencies with --system flag
+RUN uv pip install --system -r requirements_copy.txt
+
+# Copy the rest of the Streamlit application
+COPY src/client/ .
+
+# Set PYTHONPATH to include the parent directory
+ENV PYTHONPATH=/app
+
+# Expose port
+EXPOSE 8501
+
+# Run Streamlit
+CMD ["streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501"]
