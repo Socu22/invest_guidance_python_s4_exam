@@ -6,8 +6,11 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# FastAPI Port
+FASTAPI_PORT = os.getenv("FASTAPI_PORT",8000)
+
 # FastAPI server URL
-FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8080")
+FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:"+str(FASTAPI_PORT))
 
 st.title("Streamlit CRUD Client for FastAPI")
 

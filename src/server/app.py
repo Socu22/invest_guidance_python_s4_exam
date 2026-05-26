@@ -19,5 +19,5 @@ app.include_router(stocks_Router)
 # Run the app (for development)
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("FASTAPI_PORT", 3000))
+    port = int(os.getenv("FASTAPI_PORT", 8000))
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)

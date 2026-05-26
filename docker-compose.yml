@@ -4,10 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile.fastapi
     ports:
-      - "8080:8080"
+      - "8001:8001"
     environment:
       - API_TOKEN=${API_TOKEN}
-      - FASTAPI_URL=http://fastapi:8080
+      - FASTAPI_URL=http://fastapi:8001
       - PYTHONPATH=/app
     volumes:
       - ./src/server:/app/server
@@ -20,9 +20,9 @@ services:
       context: .
       dockerfile: Dockerfile.streamlit
     ports:
-      - "8501:8501"
+      - "8503:8503"
     environment:
-      - FASTAPI_URL=http://fastapi:8080
+      - FASTAPI_URL=http://fastapi:8001
       - PYTHONPATH=/app
     depends_on:
       - fastapi

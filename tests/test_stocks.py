@@ -1,11 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
-import json
-import sqlite3
 from pathlib import Path
 from server.app import app
-from server.database.db import get_db_connection, close_db_connection, initialize_stock_database
+from server.database.db import close_db_connection, initialize_stock_database
 
 client = TestClient(app)
 

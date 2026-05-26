@@ -1,7 +1,6 @@
 import sqlite3
 import sys
 import json
-import os
 from pathlib import Path
 
 # Global variable to hold the SQLite connection

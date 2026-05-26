@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import httpx
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Import af dine egne hjælpefunktioner
 from client.utills.data_analysis import analyze_stock_data, plot_stock_trends
@@ -13,7 +13,12 @@ from client.utills.llm_integration import get_investment_advice
 
 # --- KONFIGURATION ---
 load_dotenv()
-FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8080")
+
+# FastAPI Port
+FASTAPI_PORT = os.getenv("FASTAPI_PORT",8000)
+
+# FastAPI server URL
+FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:"+str(FASTAPI_PORT))
 
 st.set_page_config(
     page_title="Invest Guidance",
