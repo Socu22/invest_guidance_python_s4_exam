@@ -36,40 +36,69 @@ if "analysis" not in st.session_state:
 async def get_smart_stock_data(ticker):
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
+            # DEBUG: Request existing stock data from FastAPI backend
             db_res = await client.get(f"{FASTAPI_URL}/stocks/{ticker}")
+            print("GET /stocks response:", db_res)
 
-            if db_res.status_code == 404:
+            # If stock does not exist in DB, create it
+            if db_res.status_code == 404: 
+                print("Stock not found in DB → creating new entry")
+
                 create_res = await client.post(
                     f"{FASTAPI_URL}/stocks/",
                     json={"ticker": ticker}
                 )
+
+                print("CREATE response:", create_res)
                 return create_res.json()
 
+            # Parse existing DB response
+            print("RAW TEXT RESPONSE:", db_res.text)
+            print("STATUS CODE:", db_res.status_code)
+            print("HEADERS:", db_res.headers)
+            
             db_data = db_res.json()
-            raw_data = db_data.get("data", [])
+            print("DB JSON data:", db_data)
 
-            # Check if data is outdated
+            raw_data = db_data.get("data", [])
+            print("Raw stock data:", raw_data)
+
+            # Extract all available dates from DB
             db_dates = [item["date"] for item in raw_data]
+            print("DB dates:", db_dates)
+
+            # Determine latest stored date
             latest_date = max(db_dates) if db_dates else "1900-01-01"
             today = datetime.now().strftime("%Y-%m-%d")
 
-            # Force update if outdated
+            print("Latest DB date:", latest_date)
+            print("Today's date:", today)
+
+            # Check if data is outdated
             if latest_date < today:
+                print("Data is outdated → triggering full sync")
+
                 st.info("🔄 Outdated data detected. Synchronizing full history...")
 
+                # Force backend refresh/update
                 put_res = await client.put(
                     f"{FASTAPI_URL}/stocks/",
                     json={"ticker": ticker}
                 )
 
+                print("PUT update response:", put_res)
                 return put_res.json()
 
+            # Data is fresh → return as-is
+            print("Data is up-to-date → returning cached DB data")
             return db_data
 
         except Exception as e:
+            # DEBUG: Catch and display any runtime/network errors
+            print("ERROR occurred:", str(e))
             st.error(f"Error: {e}")
             return None
-
+        
 # --- UI STRUCTURE ---
 st.title("📈 Invest Guidance")
 st.markdown("Get AI-powered insights into your favorite stocks.")
