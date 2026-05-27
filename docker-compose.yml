@@ -23,6 +23,8 @@ services:
       - "8503:8503"
     environment:
       - FASTAPI_URL=http://fastapi:8001
+      - MISTRAL_API_KEY=
+      - API_TOKEN=
       - PYTHONPATH=/app
     depends_on:
       - fastapi

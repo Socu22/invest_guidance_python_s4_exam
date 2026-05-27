@@ -14,6 +14,7 @@
 
 [Docker]
     docker compose up --build
+        put your api keys inside the docker-compose.yml
     docker down
 
 [Setup .env]:

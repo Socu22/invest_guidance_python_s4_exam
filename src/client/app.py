@@ -8,4 +8,5 @@ st.title("Invest Guidance")
 
 st.write("Go to InvestingGuidance for my exam assignment")
 
+st.page_link("pages/InvestingGuidance.py", label="Go to InvestingGuidance")
 
