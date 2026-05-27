@@ -9,8 +9,10 @@ services:
       - API_TOKEN=${API_TOKEN}
       - FASTAPI_URL=http://fastapi:8001
       - PYTHONPATH=/app
+      - DB_PATH=/app/data/stockDataDatabase.db   
     volumes:
       - ./src/server:/app/server
+      - fastapi_data:/app/data    
     networks:
       - app_network
     restart: unless-stopped
@@ -23,7 +25,7 @@ services:
       - "8503:8503"
     environment:
       - FASTAPI_URL=http://fastapi:8001
-      - MISTRAL_API_KEY=
+      - MISTRAL_API_KEY= 
       - API_TOKEN=
       - PYTHONPATH=/app
     depends_on:
@@ -37,3 +39,6 @@ services:
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  fastapi_data:

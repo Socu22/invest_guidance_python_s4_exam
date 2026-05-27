@@ -18,7 +18,7 @@
     docker down
 
 [Setup .env]:
-    follow .example.quick.env or .example.custom.env
+    follow .example.quick.env or .example.custom.env or .example.docker.env
         Make copy at root rename to .env
             login/signup to get/create your API key/key's.  
                 API_TOKEN = https://eodhd.com/cp/dashboard

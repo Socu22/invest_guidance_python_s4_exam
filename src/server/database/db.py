@@ -2,26 +2,50 @@ import sqlite3
 import sys
 import json
 from pathlib import Path
+import os
 
 # Global variable to hold the SQLite connection
 _db_connection = None
+
 
 def get_db_connection() -> sqlite3.Connection:
     """Return a singleton SQLite connection."""
     global _db_connection
     if _db_connection is None:
-        # Get the absolute path to the database file
-        # This works whether running from src/ or project root
+
+        # DEFAULT path
         db_path = Path(__file__).parent.parent / "stockDataDatabase.db"
+
+        env_db_path = os.getenv("DB_PATH")
+        if env_db_path:
+            db_path = Path(env_db_path)
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+
         _db_connection = sqlite3.connect(str(db_path), check_same_thread=False)
         _db_connection.row_factory = sqlite3.Row  # For named columns
-        _db_connection.execute("PRAGMA journal_mode=WAL;")  # For concurrency
-        # Verify WAL mode is enabled
+
+        _db_connection.execute("PRAGMA journal_mode=WAL;")
+        _db_connection.execute("PRAGMA synchronous=NORMAL;")
+        _db_connection.execute("PRAGMA busy_timeout=5000;")
+
         cursor = _db_connection.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stocks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticker TEXT NOT NULL UNIQUE,
+            data TEXT NOT NULL
+        );
+        """)
+        _db_connection.commit()
         cursor.execute("PRAGMA journal_mode;")
-        print(f"Journal mode: {cursor.fetchone()[0]}")  # Should print 'wal'
+
+        print(f"Journal mode: {cursor.fetchone()[0]}")
         print("Database connection opened.")
+        print("[DB PATH]", db_path)
+        print("[CONN ID]", id(_db_connection))
+
     return _db_connection
+
 
 def close_db_connection() -> None:
     """Close the global database connection."""
@@ -33,9 +57,10 @@ def close_db_connection() -> None:
     else:
         print("Database connection already closed.")
 
+
 def initialize_stock_database(delete_mode=False):
     """Initialize the SQLite database with a table for stock tickers and JSON data."""
-    db = get_db_connection()  # Use the singleton connection
+    db = get_db_connection()
     cursor = db.cursor()
 
     try:
@@ -43,17 +68,16 @@ def initialize_stock_database(delete_mode=False):
             cursor.execute('DROP TABLE IF EXISTS stocks;')
             print("Stocks table dropped.")
 
-        # Create the stocks table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS stocks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticker TEXT NOT NULL UNIQUE,
-                data TEXT NOT NULL  -- Store JSON as text
+                data TEXT NOT NULL
             );
         ''')
+
         print("Stocks table created or already exists.")
 
-        # Example data for AAPL (Apple)
         aapl_data = [
             {
                 "date": "2026-04-22",
@@ -84,7 +108,6 @@ def initialize_stock_database(delete_mode=False):
             },
         ]
 
-        # Insert data as text
         cursor.execute('''
             INSERT OR REPLACE INTO stocks (ticker, data)
             VALUES (?, ?);
@@ -98,6 +121,14 @@ def initialize_stock_database(delete_mode=False):
         db.rollback()
         raise err
 
+
 if __name__ == "__main__":
     delete_mode = "--delete" in sys.argv
-    initialize_stock_database(delete_mode)
+
+    delete_docker_mode = os.getenv("DELETE_DB", "false").lower() == "true"
+
+    
+    # Docker has priority
+    initialize_stock_database(delete_docker_mode or delete_mode)
+
+        
